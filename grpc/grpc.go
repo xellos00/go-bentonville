@@ -7,6 +7,7 @@ import (
 	"net"
 
 	structpb "github.com/golang/protobuf/ptypes/struct"
+	manager_pluginpb "github.com/xellos00/silver-bentonville/dist/proto/dsrv/api/node_manager/plugin"
 	managerpb "github.com/xellos00/silver-bentonville/dist/proto/dsrv/api/node_manager/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -26,6 +27,18 @@ type grpcService struct {
 }
 
 func (s *grpcService) Execute(ctx context.Context, in *managerpb.ExecuteRequest) (*managerpb.ExecuteResponse, error) {
+
+	opts := grpc.WithInsecure()
+	cc, err := grpc.Dial("localhost:9091", opts)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cc.Close()
+
+	client := manager_pluginpb.NewManagerPluginClient(cc)
+	request := &manager_pluginpb.ExecuteRequest{ExecuteInfo: in.TargetInfo, Options: in.Command}
+	aresp, _ := client.Execute(context.Background(), request)
+
 	var options = &structpb.Struct{
 		Fields: map[string]*structpb.Value{
 			"Name": &structpb.Value{
@@ -33,24 +46,16 @@ func (s *grpcService) Execute(ctx context.Context, in *managerpb.ExecuteRequest)
 					StringValue: "Sample_Name",
 				},
 			},
-			"param": &structpb.Value{
-				Kind: &structpb.Value_StringValue{
-					StringValue: "ls",
-				},
-			},
-			"command": &structpb.Value{
-				Kind: &structpb.Value_StringValue{
-					StringValue: "ls -al",
-				},
-			},
 		},
 	}
+
 	resp := managerpb.ExecuteResponse{
 		State:    managerpb.ExecuteResponse_SUCCESS,
-		Message:  "This is Sample Message",
+		Message:  aresp.Message,
 		Protocol: "near",
 		Options:  options,
 	}
+
 	return &resp, nil
 }
 
