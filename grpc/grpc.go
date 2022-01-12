@@ -10,7 +10,7 @@ import (
 	managerpb "github.com/xellos00/silver-bentonville/dist/proto/dsrv/api/node_manager/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"heimdall-plugin/manager"
+	"pilot-manager/manager"
 )
 
 const (
@@ -18,7 +18,7 @@ const (
 )
 
 var (
-	pluginInstance manager.Manager
+	ManagerInstance manager.Manager
 )
 
 type grpcService struct {
@@ -28,9 +28,9 @@ type grpcService struct {
 func (s *grpcService) Execute(ctx context.Context, in *managerpb.ExecuteRequest) (*managerpb.ExecuteResponse, error) {
 	var options = &structpb.Struct{
 		Fields: map[string]*structpb.Value{
-			"call": &structpb.Value{
+			"Name": &structpb.Value{
 				Kind: &structpb.Value_StringValue{
-					StringValue: "get",
+					StringValue: "Sample_Name",
 				},
 			},
 			"param": &structpb.Value{
@@ -57,7 +57,7 @@ func (s *grpcService) Execute(ctx context.Context, in *managerpb.ExecuteRequest)
 func (s *grpcService) Init(ctx context.Context, in *managerpb.InitRequest) (*managerpb.InitResponse, error) {
 	// TODO: Check already running.
 
-	err := pluginInstance.Start()
+	err := ManagerInstance.Start()
 	if err != nil {
 		return &managerpb.InitResponse{Result: managerpb.CommandStatus_FAIL}, nil
 	}
@@ -68,7 +68,7 @@ func (s *grpcService) Init(ctx context.Context, in *managerpb.InitRequest) (*man
 func (s *grpcService) End(ctx context.Context, in *managerpb.EndRequest) (*managerpb.EndResponse, error) {
 	// TODO: Check running.
 
-	err := pluginInstance.Stop()
+	err := ManagerInstance.Stop()
 	if err != nil {
 		return &managerpb.EndResponse{Result: managerpb.CommandStatus_FAIL}, nil
 	}
@@ -88,7 +88,7 @@ func (s *grpcService) UpdateConfig(ctx context.Context, in *managerpb.UpdateRequ
 }
 
 func init() {
-	pluginInstance = manager.RunManager()
+	ManagerInstance = manager.RunManager()
 }
 
 // StartServer try to start grpc service.

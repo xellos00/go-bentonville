@@ -1,4 +1,4 @@
-module heimdall-plugin
+module pilot-manager
 
 go 1.16
 

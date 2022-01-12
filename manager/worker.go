@@ -10,13 +10,16 @@ const (
 	defaultChannelBufferSize = 10
 )
 
-type heimdallPlugin struct {
+type managerWorker struct {
 	CheckInterval time.Duration
 	workerChannel chan bool
 }
 
-func (p *heimdallPlugin) Start() error {
-	log.Println("Start")
+func (p *managerWorker) Start() error {
+	return nil
+}
+
+func (p *managerWorker) Execute() error {
 
 	if p.CheckInterval <= 0 {
 		p.CheckInterval = defaultCheckInterval
@@ -30,27 +33,21 @@ func (p *heimdallPlugin) Start() error {
 	return nil
 }
 
-func (p *heimdallPlugin) worker(req <-chan bool) {
+func (p *managerWorker) Stop() error {
+	return nil
+}
+
+func (p *managerWorker) worker(req <-chan bool) {
 	for {
 		_ = <-req
-
 		log.Println("Do something")
-
-		// TODO: Do something here.
-		// - check up.
-		// - get block height.
-		// - alert?
-		// - extra actions?
+		//TODO: Excute to call another plugin
 	}
 }
 
-func (p *heimdallPlugin) invoker(c chan<- bool) {
+func (p *managerWorker) invoker(c chan<- bool) {
 	for {
 		c <- true
 		time.Sleep(p.CheckInterval)
 	}
-}
-
-func (p *heimdallPlugin) Stop() error {
-	return nil
 }

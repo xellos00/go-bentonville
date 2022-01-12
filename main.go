@@ -4,12 +4,12 @@ import (
 	"log"
 	"time"
 
-	plugin_grpc "heimdall-plugin/grpc"
-	"heimdall-plugin/manager"
+	plugin_grpc "pilot-manager/grpc"
+	"pilot-manager/manager"
 )
 
 const (
-	servName = "Node manager"
+	servName = "Sample Node manager"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 	plugin_grpc.StartServer()
 
 	for {
-		// TODO: Handle SIGTERM, Shutdown gracefully.
+
 		time.Sleep(time.Second * 10)
 	}
 }
